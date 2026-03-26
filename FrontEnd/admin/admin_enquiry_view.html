@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Enquiry #{{ m.id }} — Tourist Transport</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    /* General page styles */
+    body{font-family:Inter,system-ui,Arial,sans-serif;background:#f6f8fb;margin:0;color:#071122}
+    a{text-decoration:none;color:inherit}
+
+    .wrap{max-width:900px;margin:28px auto;padding:18px}
+    .card{background:#fff;padding:18px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.04)}
+    pre{white-space:pre-wrap;background:#f8f9fb;padding:12px;border-radius:6px;line-height:1.5;font-size:14px}
+    .meta{color:#6b7280;margin-bottom:12px}
+    hr{border:none;border-top:1px solid #e6e9ee;margin:12px 0}
+    .actions{margin-top:16px;display:flex;gap:12px}
+
+    /* Buttons */
+    .btn{padding:8px 14px;border-radius:8px;background:#0f7cdb;color:#fff;font-weight:600;cursor:pointer;transition:0.2s}
+    .btn:hover{opacity:0.9}
+    .btn-danger{background:#e74c3c}
+    .btn-danger:hover{background:#c0392b}
+
+    /* Modal styles */
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:9999;justify-content:center;align-items:center}
+    .modal-content{background:#fff;padding:24px 32px;border-radius:12px;max-width:400px;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,0.1)}
+    .modal-actions{display:flex;justify-content:center;gap:16px;margin-top:20px}
+    .modal-actions button{padding:8px 14px;border-radius:8px;font-weight:600;cursor:pointer;border:none;transition:0.2s}
+    #cancelBtn{background:#e0e0e0;color:#333}
+    #cancelBtn:hover{background:#c7c7c7}
+    #confirmBtn{background:#e74c3c;color:#fff}
+    #confirmBtn:hover{background:#c0392b}
+
+    /* Back link */
+    .back-link{margin-left:8px;padding:8px 14px;background:#6b7280;color:#fff;border-radius:8px;display:inline-block;font-weight:600}
+    .back-link:hover{opacity:0.9}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="card">
+      <h2>Enquiry #{{ m.id }}</h2>
+      <div class="meta">
+        <strong>{{ m.name }}</strong> &lt;<a href="mailto:{{ m.email }}">{{ m.email }}</a>&gt;
+        &nbsp;•&nbsp; <span>{{ m.created_at_display or m.created_at }}</span>
+      </div>
+
+      <div><strong>Subject:</strong> {{ m.subject or '-' }}</div>
+      <hr>
+      <div><pre>{{ m.message }}</pre></div>
+
+      <div class="actions">
+        <form method="post" action="{{ url_for('admin.admin_enquiry_delete', msg_id=m.id) }}" class="deleteForm" style="display:inline">
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+        <a class="back-link" href="{{ url_for('admin.admin_enquiries') }}">Back to list</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="modal">
+    <div class="modal-content">
+      <h3>Are you sure you want to delete this enquiry?</h3>
+      <div class="modal-actions">
+        <button id="cancelBtn">Cancel</button>
+        <button id="confirmBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      let formToDelete = null;
+      const modal = document.getElementById('deleteModal');
+      const cancelBtn = document.getElementById('cancelBtn');
+      const confirmBtn = document.getElementById('confirmBtn');
+
+      // Attach click to delete buttons
+      document.querySelectorAll('.deleteForm').forEach(form => {
+        form.addEventListener('submit', function(e){
+          e.preventDefault(); 
+          formToDelete = this;
+          modal.style.display = 'flex';
+        });
+      });
+
+      // Cancel closes modal
+      cancelBtn.addEventListener('click', function(){
+        modal.style.display = 'none';
+        formToDelete = null;
+      });
+
+      // Confirm deletes
+      confirmBtn.addEventListener('click', function(){
+        if(formToDelete){
+          formToDelete.submit(); 
+        }
+      });
+
+      // Click outside modal closes it
+      modal.addEventListener('click', function(e){
+        if(e.target === modal){
+          modal.style.display = 'none';
+          formToDelete = null;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Admin Login</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    body{font-family:Inter,system-ui,Arial;background:#f6f8fb;margin:0;color:#071122}
+    .wrap{max-width:520px;margin:48px auto;padding:20px}
+    .card{background:#fff;padding:22px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.04)}
+    input{padding:10px;border-radius:8px;border:1px solid #e6e9ee;width:100%}
+    .btn{padding:10px;border-radius:8px;background:#0f7cdb;color:#fff;border:none}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="card">
+      <h1>Admin Login</h1>
+      {% if error %}<div style="color:#b91c1c">{{ error }}</div>{% endif %}
+      <form method="POST" action="{{ url_for('admin.admin_login') }}">
+        <label style="display:block;margin-top:12px">Username</label>
+        <input type="text" name="adminUsername" required>
+
+        <label style="display:block;margin-top:12px">Password</label>
+        <input type="password" name="adminPassword" required>
+
+        <div style="margin-top:14px">
+          <button class="btn" type="submit">Login</button>
+          <a href="{{ url_for('home') }}" style="margin-left:12px;color:#0f7cdb;text-decoration:none">Back Home</a>
+        </div>
+      </form>
+    </div>
+  </main>
+</body>
+</html>
+

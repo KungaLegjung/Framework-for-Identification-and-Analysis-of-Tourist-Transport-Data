@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin - Tours</title>
+</head>
+<body>
+  <h1>All Tours</h1>
+  <a href="{{ url_for('admin.admin_dashboard') }}">⬅ Back</a>
+  <table border="1">
+    <tr><th>ID</th><th>User</th><th>Place</th></tr>
+    {% for tour in tours %}
+      <tr>
+        <td>{{ tour.id }}</td>
+        <td>{{ tour.user }}</td>
+        <td>{{ tour.place }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+</body>
+</html>

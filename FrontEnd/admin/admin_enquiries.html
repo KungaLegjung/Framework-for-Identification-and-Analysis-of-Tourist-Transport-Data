@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Admin Enquiries — Tourist Transport</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    /* General page styles */
+    body{font-family:Inter,system-ui,Arial,sans-serif;background:#f6f8fb;margin:0;color:#071122}
+    a{text-decoration:none;color:inherit}
+
+    header{background:linear-gradient(90deg,#0f7cdb,#4aa3ff);color:#fff;padding:16px;
+           display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap}
+
+    .container{max-width:1100px;margin:20px auto;padding:18px}
+    .card{background:#fff;padding:16px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.04)}
+
+    /* Buttons */
+    .btn{padding:8px 14px;border-radius:8px;background:#0f7cdb;color:#fff;font-weight:600;cursor:pointer;transition:0.2s;margin-left:6px}
+    .btn:hover{opacity:0.9}
+    .btn-danger{background:#e74c3c}
+    .btn-danger:hover{background:#c0392b}
+
+    /* Table styles */
+    table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+    th,td{padding:10px;border-bottom:1px solid #eef2f6;text-align:left;vertical-align:top}
+    th{background:#f3f7fb;font-weight:700}
+    .muted{color:#6b7280;font-size:13px}
+    .excerpt{max-width:420px;white-space:pre-wrap;overflow:hidden;text-overflow:ellipsis}
+
+    /* Actions */
+    .actions form{display:inline-block;margin-left:6px}
+
+    /* No data */
+    .no-data{padding:12px;color:#6b7280;text-align:center}
+
+    /* Modal styles */
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:9999;justify-content:center;align-items:center}
+    .modal-content{background:#fff;padding:24px 32px;border-radius:12px;max-width:400px;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,0.1)}
+    .modal-actions{display:flex;justify-content:center;gap:16px;margin-top:20px}
+    .modal-actions button{padding:8px 14px;border-radius:8px;font-weight:600;cursor:pointer;border:none;transition:0.2s}
+    #cancelBtn{background:#e0e0e0;color:#333}
+    #cancelBtn:hover{background:#c7c7c7}
+    #confirmBtn{background:#e74c3c;color:#fff}
+    #confirmBtn:hover{background:#c0392b}
+
+    /* Responsive */
+    @media(max-width:900px){
+      header{flex-direction:column;align-items:flex-start;gap:8px}
+      table, th, td{font-size:13px}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div style="font-weight:700">Tourist Transport — Admin</div>
+    <div>
+      <a class="btn" href="{{ url_for('admin.admin_dashboard') }}">Dashboard</a>
+      <a class="btn" href="{{ url_for('admin.logout') }}">Logout</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="card">
+      <h2>Contact Enquiries</h2>
+      <p class="muted">Messages submitted via the contact form (newest first).</p>
+
+      {% if messages %}
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Subject</th>
+            <th>Message</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in messages %}
+          <tr>
+            <td>{{ m.id }}</td>
+            <td>{{ m.name }}</td>
+            <td><a href="mailto:{{ m.email }}">{{ m.email }}</a></td>
+            <td>{{ m.subject or '-' }}</td>
+            <td class="excerpt">{{ (m.message[:200] ~ ('...' if m.message|length > 200 else '')) }}</td>
+            <td>{{ m.created_at_display or m.created_at }}</td>
+            <td class="actions">
+              <a class="btn" href="{{ url_for('admin.admin_enquiry_view', msg_id=m.id) }}">View</a>
+              <form method="post" action="{{ url_for('admin.admin_enquiry_delete', msg_id=m.id) }}" class="deleteForm">
+                <button type="submit" class="btn btn-danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="no-data">No enquiries yet.</div>
+      {% endif %}
+    </div>
+  </main>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="modal">
+    <div class="modal-content">
+      <h3>Are you sure you want to delete this enquiry?</h3>
+      <div class="modal-actions">
+        <button id="cancelBtn">Cancel</button>
+        <button id="confirmBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      let formToDelete = null;
+      const modal = document.getElementById('deleteModal');
+      const cancelBtn = document.getElementById('cancelBtn');
+      const confirmBtn = document.getElementById('confirmBtn');
+
+      document.querySelectorAll('.deleteForm').forEach(form => {
+        form.addEventListener('submit', function(e){
+          e.preventDefault();
+          formToDelete = this;
+          modal.style.display = 'flex';
+        });
+      });
+
+      cancelBtn.addEventListener('click', function(){
+        modal.style.display = 'none';
+        formToDelete = null;
+      });
+
+      confirmBtn.addEventListener('click', function(){
+        if(formToDelete){
+          formToDelete.submit();
+        }
+      });
+
+      modal.addEventListener('click', function(e){
+        if(e.target === modal){
+          modal.style.display = 'none';
+          formToDelete = null;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

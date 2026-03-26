@@ -1,0 +1,28 @@
+Booking {{ action|capitalize }}
+
+Hello {{ user_name }},
+
+Your booking #{{ booking_id }} for {{ place_name }} has been {{ action }}.
+
+Details:
+- Booking ID: #{{ booking_id }}
+- Place: {{ place_name }}
+- Seats: {{ seats }}
+- Date: {{ booking_date_display }}
+- Status: {{ action|capitalize }}
+
+{% if action == 'approved' %}
+🎉 Congratulations! Your booking has been confirmed. 
+Please arrive at the meeting point 30 minutes before the scheduled time.
+{% elif action == 'rejected' %}
+❌ Unfortunately, we are unable to process your booking at this time. 
+You may try booking another date or contact our support team for assistance.
+{% else %}
+⏳ Your booking request is being processed. 
+We will notify you as soon as it is confirmed.
+{% endif %}
+
+Thank you for choosing Tourist Transport.
+If you have any questions, please reply to this email or contact us through our website.
+
+— Tourist Transport Team

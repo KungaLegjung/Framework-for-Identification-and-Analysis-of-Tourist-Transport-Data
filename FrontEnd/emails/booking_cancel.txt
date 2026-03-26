@@ -1,0 +1,10 @@
+Booking Cancelled
+
+Hello {{ user_name }},
+
+Your booking #{{ booking_id }} for {{ place_name }} has been cancelled.
+
+Date: {{ booking_date_display }}
+
+Thanks,  
+Tourist Transport

@@ -1,0 +1,208 @@
+<!-- <!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Admin — User Chats</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial;margin:18px;background:#f6f8fb;color:#0b1220}
+    .wrap{max-width:900px;margin:0 auto}
+    table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden}
+    th,td{padding:12px;border-bottom:1px solid #eef2f6;text-align:left}
+    th{background:#f3f7fb}
+    a.btn{display:inline-block;padding:8px 10px;border-radius:8px;background:#0f7cdb;color:#fff;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <h2 style="margin:0">Admin — User Chats</h2>
+      <div class="small">Admin: {{ session.get('admin_id') }}</div>
+    </header>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Open Chat</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{ u.id }}</td>
+          <td>{{ u.name }}</td>
+          <td>{{ u.email }}</td>
+          <td>
+            <a class="btn" href="{{ url_for('admin.admin_chat_room', user_id=u.id) }}">Open Chat</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html> -->
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Admin — User Chats</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    :root {
+      --accent: #0f7cdb;
+      --bg: #f6f8fb;
+      --card: #fff;
+      --text: #0b1220;
+      --muted: #6b7280;
+      --hover: #0c63b4;
+    }
+
+    body {
+      font-family: Inter, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 18px;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    header h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+    header .small {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 8px 12px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .back-link:hover {
+      background: var(--hover);
+    }
+
+    .search-input {
+      margin-bottom: 12px;
+      padding: 8px 12px;
+      width: 100%;
+      max-width: 300px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #eef2f6;
+      text-align: left;
+    }
+    th {
+      background: #f3f7fb;
+      font-weight: 600;
+    }
+
+    a.btn {
+      display: inline-block;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    a.btn:hover {
+      background: var(--hover);
+    }
+
+    @media(max-width:600px){
+      th, td { padding: 8px; }
+      a.btn { padding: 6px 8px; font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a href="{{ url_for('admin.admin_dashboard') }}" class="back-link">← Back to Dashboard</a>
+
+    <header>
+      <h2>Admin — User Chats</h2>
+      <div class="small">Admin: {{ session.get('admin_id') }}</div>
+    </header>
+
+    <input type="text" id="searchInput" class="search-input" placeholder="Search by name or email..." />
+
+    <table id="usersTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Open Chat</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{ u.id }}</td>
+          <td>{{ u.name }}</td>
+          <td>{{ u.email }}</td>
+          <td>
+            <a class="btn" href="{{ url_for('admin.admin_chat_room', user_id=u.id) }}">Open Chat</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    // Live search for table
+    (function() {
+      const input = document.getElementById('searchInput');
+      const table = document.getElementById('usersTable');
+      if (!input || !table) return;
+
+      const rows = Array.from(table.tBodies[0].rows || []);
+      input.addEventListener('input', function() {
+        const q = (this.value || '').toLowerCase().trim();
+        rows.forEach(r => {
+          const text = r.innerText.toLowerCase();
+          r.style.display = text.includes(q) ? '' : 'none';
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
+

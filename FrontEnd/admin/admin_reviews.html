@@ -1,0 +1,266 @@
+<!-- <!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Admin — Reviews Overview</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body{font-family:Arial, sans-serif;margin:1.6rem;background:#f6f8fb;color:#071122}
+    .card{background:#fff;padding:1rem;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-bottom:1rem}
+    .summary {display:flex;gap:1rem;align-items:center}
+    .stat {padding:0.6rem 1rem;border-radius:8px;background:#f7f7f7;margin-bottom:.5rem}
+    table{width:100%;border-collapse:collapse;margin-top:1rem}
+    th,td{padding:0.5rem;border-bottom:1px solid #eee;text-align:left;vertical-align:top}
+    .muted{color:#6b7280;font-size:13px}
+    a.btn{display:inline-block;padding:6px 10px;border-radius:6px;background:#0f7cdb;color:#fff;text-decoration:none}
+    canvas{width:100% !important;height:200px !important}
+  </style>
+</head>
+<body>
+  <h2>Reviews Overview</h2>
+
+  <div class="card">
+    <div class="summary">
+      <div style="flex:1;min-height:200px">
+        <canvas id="reviewsChart" width="400" height="200"></canvas>
+      </div>
+      <div style="width:220px">
+        <div class="stat"><strong>Good</strong> — {{ good|default(0)|int }}</div>
+        <div class="stat"><strong>Average</strong> — {{ average|default(0)|int }}</div>
+        <div class="stat"><strong>Bad</strong> — {{ bad|default(0)|int }}</div>
+      </div>
+    </div>
+
+    {% if reviews_table %}
+    <h4 style="margin-top:1rem">Recent reviews (sample)</h4>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:140px">User</th>
+          <th style="width:160px">Place</th>
+          <th style="width:80px">Category</th>
+          <th>Title / Excerpt</th>
+          <th style="width:120px">Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in reviews_table %}
+          {# Normalize values safely into local vars. r may be a dict (db_cursor) or an object (ORM) #}
+          {% if r.get is defined %}
+            {# dict-style row #}
+            {% set user_name = r.get('user_name') or r.get('username') or '—' %}
+            {% set place_name = r.get('place_name') or r.get('place') or '—' %}
+            {% set cat = r.get('category') %}
+            {% set title = (r.get('title') or '') %}
+            {% set body = (r.get('body') or '') %}
+            {% set created = (r.get('created_at_display') or r.get('created_at') or '') %}
+          {% else %}
+            {# object-style row (ORM) #}
+            {% set user_name = (r.user_name if (r.user_name is defined) else (r.user.name if (r.user is defined) else '—')) %}
+            {% set place_name = (r.place_name if (r.place_name is defined) else (r.place.name if (r.place is defined) else '—')) %}
+            {% set cat = (r.category if (r.category is defined) else None) %}
+            {% set title = (r.title if (r.title is defined) else '') %}
+            {% set body = (r.body if (r.body is defined) else '') %}
+            {% set created = (r.created_at_display if (r.created_at_display is defined) else (r.created_at if (r.created_at is defined) else '')) %}
+          {% endif %}
+
+          <tr>
+            <td>{{ user_name }}</td>
+            <td>{{ place_name }}</td>
+            <td>
+              {% if cat == 3 %}Good{% elif cat == 2 %}Average{% elif cat == 1 %}Bad{% else %}—{% endif %}
+            </td>
+            <td>
+              {{ (title ~ ' — ') if title else '' }}
+              {{ body[:80] }}{% if body|length > 80 %}...{% endif %}
+            </td>
+            <td>{{ created }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <div style="padding:12px;color:#6b7280">No reviews to show.</div>
+    {% endif %}
+  </div>
+
+  <p><a class="btn" href="{{ url_for('admin.admin_dashboard') }}">⬅ Back to Admin</a></p>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const bad = {{ bad|default(0)|int }};
+    const average = {{ average|default(0)|int }};
+    const good = {{ good|default(0)|int }};
+
+    const ctx = document.getElementById('reviewsChart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Good', 'Average', 'Bad'],
+        datasets: [{
+          label: 'Reviews',
+          data: [good, average, bad],
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom' }
+        }
+      }
+    });
+  </script>
+</body>
+</html> -->
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Admin — Reviews Overview</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --card: #fff;
+      --primary: #0f7cdb;
+      --muted: #6b7280;
+      --shadow: rgba(0,0,0,0.06);
+      --text: #071122;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 1.5rem;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    h2 { margin-bottom: 1rem; }
+
+    .card {
+      background: var(--card);
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 1px 6px var(--shadow);
+      margin-bottom: 1.5rem;
+    }
+
+    .summary { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: flex-start; }
+    .summary > div { flex: 1; min-width: 200px; }
+    .stat { padding: 0.6rem 1rem; border-radius: 8px; background: #f7f7f7; margin-bottom: 0.5rem; font-weight: 500; display: flex; justify-content: space-between; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 14px; }
+    th, td { padding: 0.6rem 0.5rem; border-bottom: 1px solid #eee; text-align: left; vertical-align: top; }
+    th { font-weight: 600; color: var(--text); }
+    .muted { color: var(--muted); font-size: 13px; }
+    a.btn { display: inline-block; padding: 8px 14px; border-radius: 8px; background: var(--primary); color: #fff; text-decoration: none; font-weight: 500; transition: background 0.2s; }
+    a.btn:hover { background: #0c63b4; }
+    canvas { width: 100% !important; height: 220px !important; }
+
+    /* Flash message style */
+    .flash { padding:12px; margin-bottom:12px; border-radius:8px; font-weight:500; }
+
+    @media(max-width: 600px) { .summary { flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <h2>Reviews Overview</h2>
+
+  
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash" style="
+          color: {% if category == 'success' %}#0a7a0a{% else %}#8a1a1a{% endif %};
+          background: {% if category == 'success' %}#e6f6ea{% else %}#ffecec{% endif %};
+          border: 1px solid {% if category == 'success' %}#16a34a{% else %}#ef4444{% endif %};
+        ">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="card">
+    <div class="summary">
+      <div>
+        <canvas id="reviewsChart"></canvas>
+      </div>
+      <div style="width:220px;">
+        <div class="stat"><span>Good</span> <span>{{ good|default(0)|int }}</span></div>
+        <div class="stat"><span>Average</span> <span>{{ average|default(0)|int }}</span></div>
+        <div class="stat"><span>Bad</span> <span>{{ bad|default(0)|int }}</span></div>
+      </div>
+    </div>
+
+    {% if reviews_table %}
+      <h4 style="margin-top:1.5rem">Recent Reviews</h4>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:140px">User</th>
+            <th style="width:160px">Place</th>
+            <th style="width:80px">Category</th>
+            <th>Title / Excerpt</th>
+            <th style="width:120px">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in reviews_table %}
+            {% set user_name = r.get('user_name') or r.get('username') or '—' %}
+            {% set place_name = r.get('place_name') or r.get('place') or '—' %}
+            {% set cat = r.get('category') %}
+            {% set title = r.get('title') or '' %}
+            {% set body = r.get('body') or '' %}
+            {% set created = r.get('created_at_display') or r.get('created_at') or '' %}
+            <tr>
+              <td>{{ user_name }}</td>
+              <td>{{ place_name }}</td>
+              <td>
+                {% if cat == 3 %}Good{% elif cat == 2 %}Average{% elif cat == 1 %}Bad{% else %}—{% endif %}
+              </td>
+              <td>{{ (title ~ ' — ') if title else '' }}{{ body[:80] }}{% if body|length > 80 %}...{% endif %}</td>
+              <td>{{ created }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div style="padding:12px;color:var(--muted)">No reviews to show.</div>
+    {% endif %}
+  </div>
+
+  <p><a class="btn" href="{{ url_for('admin.admin_dashboard') }}">⬅ Back to Admin</a></p>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const bad = {{ bad|default(0)|int }};
+    const average = {{ average|default(0)|int }};
+    const good = {{ good|default(0)|int }};
+
+    const ctx = document.getElementById('reviewsChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Good', 'Average', 'Bad'],
+        datasets: [{
+          label: 'Reviews',
+          data: [good, average, bad],
+          backgroundColor: ['#10b981','#facc15','#ef4444'],
+          borderWidth: 1,
+          borderColor: '#fff',
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { boxWidth:12, padding:10 } } }
+      }
+    });
+  </script>
+</body>
+</html>
+
