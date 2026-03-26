@@ -93,7 +93,7 @@ PLAINTEXT_PASSWORDS = _get_bool("PLAINTEXT_PASSWORDS", True)
 ALLOW_ADMIN_PLAINTEXT_SET = _get_bool("ALLOW_ADMIN_PLAINTEXT_SET", True)
 
 # --- Third-party keys / feature flags ---
-GOOGLE_MAPS_API_KEY = os.environ.get("GOOGLE_MAPS_API_KEY", "AIzaSyCNIGJvxyt270FnAKekyDx0VjAZqOMrDB4")
+GOOGLE_MAPS_API_KEY = os.environ.get("GOOGLE_MAPS_API_KEY", "API_KEY_PASTE_HERE")
 
 # ======================================================
 # Email (Mailgun)
